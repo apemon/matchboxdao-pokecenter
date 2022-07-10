@@ -33,6 +33,14 @@ func Poke_posts(post_id : Uint256) -> (post : Post):
 end
 
 @storage_var
+func Poke_post_upvote(post_id : Uint256) -> (vote : Uint256):
+end
+
+@storage_var
+func Poke_post_downvote(post_id : Uint256) -> (vote : Uint256):
+end
+
+@storage_var
 func Poke_post_attestions(post_id : Uint256) -> (attestion : Attestion):
 end
 
@@ -42,6 +50,14 @@ end
 
 @storage_var
 func Poke_comments(post_id : Uint256, comment_id : Uint256) -> (comment : Comment):
+end
+
+@storage_var
+func Poke_comment_upvote(post_id : Uint256, comment_id : Uint256) -> (vote : Uint256):
+end
+
+@storage_var
+func Poke_comment_downvote(post_id : Uint256, comment_id : Uint256) -> (vote : Uint256):
 end
 
 @storage_var
@@ -93,6 +109,27 @@ func create_post_with_attestion{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*
     return ()
 end
 
+# this does not check duplicate voting
+@external
+func upvote_post{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+    post_id : Uint256
+):
+    let (vote) = Poke_post_upvote.read(post_id)
+    let (new_vote) = SafeUint256.add(vote, Uint256(1, 0))
+    Poke_post_upvote.write(post_id, new_vote)
+    return ()
+end
+
+@external
+func downvote_post{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+    post_id : Uint256
+):
+    let (vote) = Poke_post_downvote.read(post_id)
+    let (new_vote) = SafeUint256.add(vote, Uint256(1, 0))
+    Poke_post_downvote.write(post_id, new_vote)
+    return ()
+end
+
 @external
 func create_comment{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     postId : Uint256, data : felt
@@ -129,12 +166,34 @@ func create_comment_with_attestion{
     return ()
 end
 
+# this does not check duplicate voting
+@external
+func upvote_comment{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+    post_id : Uint256, comment_id : Uint256
+):
+    let (vote) = Poke_comment_upvote.read(post_id, comment_id)
+    let (new_vote) = SafeUint256.add(vote, Uint256(1, 0))
+    Poke_comment_upvote.write(post_id, comment_id, new_vote)
+    return ()
+end
+
+@external
+func downvote_comment{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+    post_id : Uint256, comment_id : Uint256
+):
+    let (vote) = Poke_comment_downvote.read(post_id, comment_id)
+    let (new_vote) = SafeUint256.add(vote, Uint256(1, 0))
+    Poke_comment_downvote.write(post_id, comment_id, new_vote)
+    return ()
+end
+
 @view
 func post{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(post_id : Uint256) -> (
-    post : Post
+    post : Post, total_comment : Uint256
 ):
     let (post) = Poke_posts.read(post_id)
-    return (post)
+    let (total_comment) = Poke_last_comment_id.read(post_id)
+    return (post, total_comment)
 end
 
 @view
@@ -143,6 +202,22 @@ func post_attestion{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_chec
 ) -> (attestion : Attestion):
     let (attestion) = Poke_post_attestions.read(post_id)
     return (attestion)
+end
+
+@view
+func post_upvote{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    post_id : Uint256
+) -> (vote : Uint256):
+    let (vote) = Poke_post_upvote.read(post_id)
+    return (vote)
+end
+
+@view
+func post_downvote{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    post_id : Uint256
+) -> (vote : Uint256):
+    let (vote) = Poke_post_downvote.read(post_id)
+    return (vote)
 end
 
 @view
@@ -159,4 +234,20 @@ func comment_attestion{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_c
 ) -> (attestion : Attestion):
     let (attestion) = Poke_comment_attestions.read(post_id, comment_id)
     return (attestion)
+end
+
+@view
+func comment_upvote{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    post_id : Uint256, comment_id : Uint256
+) -> (vote : Uint256):
+    let (vote) = Poke_comment_upvote.read(post_id, comment_id)
+    return (vote)
+end
+
+@view
+func comment_downvote{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    post_id : Uint256, comment_id : Uint256
+) -> (vote : Uint256):
+    let (vote) = Poke_comment_downvote.read(post_id, comment_id)
+    return (vote)
 end

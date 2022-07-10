@@ -83,4 +83,10 @@ async def test_constructor():
     assert execution_info.result.comment.data == str_to_felt('hello world')
     execution_info = await contract.comment_attestion(TOKENS[1],TOKENS[0]).invoke()
     assert execution_info.result.attestion.nft_address == nft.contract_address
+    # test upvote post
+    await signer.send_transaction(
+        account1, contract.contract_address, 'upvote_post', [*TOKENS[0]]
+    )
+    execution_info = await contract.post_upvote(TOKENS[0]).invoke()
+    assert execution_info.result.vote == to_uint(1)
 
