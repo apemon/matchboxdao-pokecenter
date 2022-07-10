@@ -1,12 +1,9 @@
 def run(nre):
     #print("Compiling contract…")
-    nre.compile(["contracts/erc721.cairo"]) # we compile our contract first
+    nre.compile(["contracts/pokecenter.cairo"]) # we compile our contract first
     #print("Deploying contract…")
-    name = str(str_to_felt("Mock NFT"))
-    symbol = str(str_to_felt("MOCK"))
-    admin = "0x01318AA3db9c3C793a1efcA1413a2e239CF3E075A8B204342a80509168ec0198"
-    params = [name, symbol, admin]
-    address, abi = nre.deploy("ERC721", params, alias="nft")
+    params = []
+    address, abi = nre.deploy("pokecenter", params, alias="pokecenter")
     print(f"ABI: {abi},\nContract address: {address}")
     # mint nft
     # tokenId = to_uint(1)

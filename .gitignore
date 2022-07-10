@@ -134,7 +134,7 @@ dmypy.json
 # vscode project settings
 .vscode/
 
-127.0.0.1.*
+*.deployments.txt
 accounts.json
 command.txt
 node.json
